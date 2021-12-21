@@ -1,0 +1,53 @@
+version: '3'
+volumes:
+  vendor-store:
+  node_modules-store:
+
+services:
+
+  php:
+    container_name: php_container
+    image: php:7.2-apache
+    build: .
+    volumes:
+      - ./php.ini:/usr/local/etc/php/php.ini
+      - ./web:/var/www/html
+      - vendor-store:/var/www/laravel8/vendor
+      - node_modules-store:/var/www/laravel8/node_modules
+
+    ports:
+      - 8081:8081
+
+  db:
+    container_name: mysql_container
+    image: mysql:5.7
+    # MySQLのコンテナ内の環境変数を指定。
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      TZ: "Asia/Tokyo"
+
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # ディレクトリの同期。
+    # ここを書かないとコンテナを閉じたときにDBからデータがなくなるので注意。
+    # 詳しくはdocker 永続化などと調べると良いかも。
+    volumes:
+      - ./Docker/DB/volume:/var/lib/mysql
+      - ./Docker/DB/my.cnf:/etc/mysql/conf.d/my.cnf
+    # ホストの13306番ポートとコンテナのなかの3306番ポートとつなげる設定。
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    container_name: phpmyadmin_container
+    image: phpmyadmin/phpmyadmin
+    # phpmyadminの環境変数の設定。MySQLの設定を参照して記載。PMA_HOSTSにはservicesのdbを指定。
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - 3000:80
