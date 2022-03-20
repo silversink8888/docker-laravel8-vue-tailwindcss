@@ -36,9 +36,34 @@ services:
     volumes:
       - ./Docker/DB/volume:/var/lib/mysql
       - ./Docker/DB/my.cnf:/etc/mysql/conf.d/my.cnf
-    # ホストの13306番ポートとコンテナのなかの3306番ポートとつなげる設定。
+    # ホストの3306番ポートとコンテナのなかの3306番ポートとつなげる設定。
     ports:
       - 3306:3306
+
+  #################################
+  ##テスト用コンテナDB  ############
+  #################################
+  db-testing:
+    container_name: mysql_test
+    image: mysql:5.7
+    # MySQLのコンテナ内の環境変数を指定。
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_database
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      TZ: "Asia/Tokyo"
+
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # ディレクトリの同期。
+    # ここを書かないとコンテナを閉じたときにDBからデータがなくなるので注意。
+    # 詳しくはdocker 永続化などと調べると良いかも。
+    volumes:
+      - ./Docker/DB-test/volume:/var/lib/mysql
+      - ./Docker/DB-test/my.cnf:/etc/mysql/conf.d/my.cnf
+    # ホストの3306番ポートとコンテナのなかの3306番ポートとつなげる設定。
+    ports:
+      - 3366:3306
 
   phpmyadmin:
     container_name: phpmyadmin_container
@@ -51,3 +76,19 @@ services:
       - PMA_PASSWORD=root
     ports:
       - 3000:80
+
+  #################################
+  ##テスト用コンテナDB phpmyadmin###
+  #################################
+  phpmyadmin-test:
+    container_name: phpmyadmin_test
+    image: phpmyadmin/phpmyadmin
+    # phpmyadminの環境変数の設定。MySQLの設定を参照して記載。PMA_HOSTSにはservicesのdb-testingを指定。
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db-testing
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - 3300:80
+

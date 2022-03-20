@@ -1,12 +1,12 @@
 # docker-laravel8-vue-tailwindcss
 
 
-#Dev
+# Dev
 Prerequisites
 
     Docker
 
-#Content
+# Content
 
     Laravel : 8.65
     laravel/jetstream : 2.4
@@ -18,7 +18,7 @@ Prerequisites
 
 
 
-#change the DB info.
+# change the DB info.
 
 	DB_CONNECTION=mysql
 	DB_HOST=mysql_container
@@ -28,7 +28,7 @@ Prerequisites
 	DB_PASSWORD=password
 
 
-#Browsing
+# Browsing
 
     http://localhost:8081 - Web Application
     http://localhost:3000 - PHPmyadmin
